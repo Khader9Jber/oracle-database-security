@@ -22,4 +22,6 @@
 
 ## Chapter 6 - Backup and Recovery Using RMAN
 
-[CH6](./CH6.md)
+### [CH6](./CH6.md)
+
+---
