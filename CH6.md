@@ -1,3 +1,3 @@
-# Chapter 6
+# Chapter 6 - Backup and Recovery Using RMAN
 
-## Backup and Recovery Using RMAN
+##
