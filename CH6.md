@@ -6,6 +6,6 @@
 
 ```sql
 ARCHIVE LOG LIST;
- -- OR
- SELECT dbid, name, created, log_mode FROM v$database;
+-- OR
+SELECT dbid, name, created, log_mode FROM v$database;
 ```
