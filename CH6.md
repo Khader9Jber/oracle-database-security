@@ -49,11 +49,14 @@ ALTER SYSTEM SET DB_RECOVERY_FILE_DEST ='C:\app\Administrator\FRA\' scope=both s
 
 -- alter system set log_archive_dest_1='LOCATION= C:\app\Administrator\FRA1\' scope=both;
 
+
 -- After enabled Flash Recovery area check the status
+
 select * from v$flash_recovery_area_usage;
 
 
 -- Switch Archivelog from database level and double check the archivelog
+
 alter system switch logfile;
 select dest_name,status,error from v$archive_dest_status;
 ```
