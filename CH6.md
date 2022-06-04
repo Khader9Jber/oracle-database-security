@@ -1,6 +1,12 @@
 # Chapter 6 - Backup and Recovery Using RMAN
 
-##
+## Important Terminologies
+
+- Oracle RMAN (Oracle Recovery Manager) is a utility built into Oracle databases to automate backup and recovery;
+- How RMAN works
+  - The RMAN environment must include a target database and the RMAN client.
+  - It performs backing up, recovering and restoring the database files.
+- To perform backup and recovery tasks with RMAN, you must connect to the database as a user with the SYSDBA or SYSBACKUP privilege.
 
 > Check if Archiving Mode is Enabled:
 
@@ -58,3 +64,48 @@ select * from v$flash_recovery_area_usage;
 alter system switch logfile;
 select dest_name,status,error from v$archive_dest_status;
 ```
+
+---
+
+> Backing Up the Control File
+>
+> > Before backup you should making multiplexing
+
+```sql
+Rman target /
+RMAN> BACKUP CURRENT CONTROLFILE;
+```
+
+> Backing Up the Database
+>
+> > - If the database is in ARCHIVELOG mode, you can perform an online database backup (also known as an inconsistent or hot backup)
+> > - Offline database backup (also known as a consistent or cold backup).
+> > - If the database is in NOARCHIVELOG mode, you can perform only an offline backup.
+
+```sql
+Rman target /
+RMAN> BACKUP CURRENT CONTROLFILE;
+```
+
+> Performing User-Managed Cold Backups
+>
+> > - Cold backups are performed after shutting down the database.
+> > - and copy all control files and data files to another location or to your tape management system using OS commands. You also need to back up the parameter file (init file or spfile) and password file.
+
+```sql
+SHUTDOWN IMMEDIATE or SHUTDOWN TRANSACTIONAL
+select * from V$CONTROLFILE;
+```
+
+> Performing User-Managed Hot Backups
+>
+> > - To perform a hot backup, the database must be in ARCHIVELOG mode.
+> > - Before starting to copy the data files belonging to a tablespace, you must place the tablespace in backup mode using the BEGIN BACKUP clause.
+> > - When a tablespace is in backup mode, use OS utilities to copy the data files belonging to the tablespace to another location or to the tape management system.
+
+```sql
+ALTER TABLESPACE users END BACKUP;
+```
+
+- RMAN is the primary component of the Oracle database used to perform backup and recovery operations.
+- You can use RMAN to back up all types: whole or partial databases, full or incremental, and consistent or inconsistent.
