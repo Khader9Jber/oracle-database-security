@@ -47,7 +47,7 @@ alter system set db_recovery_file_dest_size=2G scope=both sid='*';
 
 ALTER SYSTEM SET DB_RECOVERY_FILE_DEST ='C:\app\Administrator\FRA\' scope=both sid='*';
 
-alter system set log_archive_dest_1='LOCATION= C:\app\Administrator\FRA1\' scope=both;
+alter system set log_archive_dest_1='LOCATION=C:\app\Administrator\FRA1\' scope=both;
 
 
 -- After enabled Flash Recovery area check the status
