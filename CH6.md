@@ -47,7 +47,10 @@ select * from v$flash_recovery_area_usage;
 
 > Enabling Flash Recovery Area
 >
-> > 1. Create a Directory => 2. Make sure you are in the root => 3. Do this: SHOW PARAMETER db_recovery_file; to see if option is enabled or not => 4. If not, then:
+> > 1. Create a Directory
+> > 2. Make sure you are in the root
+> > 3. Do this: SHOW PARAMETER db_recovery_file; to see if option is enabled or not
+> > 4. If not, then:
 
 ```sql
 
