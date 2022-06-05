@@ -14,7 +14,10 @@ SELECT dbid, name, created, log_mode FROM v$database;
 
 > Enabling Archiving Mode
 >
-> > 1. Connect sys as sysdba => 2. Make sure you are in the root => 3. Do this: ARCHIVE LOG LIST; to see if option is enabled or not => 4. If not, then:
+> > 1. Connect sys as sysdba
+> > 2. Make sure you are in the root
+> > 3. Do this: ARCHIVE LOG LIST; to see if option is enabled or not
+> > 4. If not, then:
 
 ```sql
 Shutdown immediate;
