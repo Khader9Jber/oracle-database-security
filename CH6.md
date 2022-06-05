@@ -71,6 +71,7 @@ select dest_name,status,error from v$archive_dest_status;
 
 - Inconsistent Backup = Hot Backup = Online Backup
 - Consistent Backup = Cold Backup = Offline Backup
+- U can perform both (Hot and Cold) if U enabled ARCHIVELOG mode. but if not, U can do Only Cold Backup.
 - RMAN is the primary component of the Oracle database used to perform backup and recovery operations.
 - You can use RMAN to back up all types: whole or partial databases, full or incremental, and consistent or inconsistent.
 - Oracle RMAN (Oracle Recovery Manager) is a utility built into Oracle databases to automate backup and recovery.
@@ -90,8 +91,6 @@ BACKUP CURRENT CONTROLFILE;
 ```
 
 > Backing Up the Database
->
-> > U can perform both (Hot and Cold) if U enabled ARCHIVELOG mode. but if not, U can do Only Cold Backup.
 
 ```sql
 Rman target /
