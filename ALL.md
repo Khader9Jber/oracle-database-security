@@ -63,6 +63,8 @@ startup;
 select * from sys.aud$;
 ```
 
+#### Statement Level
+
 > Enabling and Disabling statement auditing
 >
 > > Always BY ACCESS
@@ -91,12 +93,46 @@ WHERE username = 'HR';
 select * from dba_stmt_audit_opts;
 ```
 
+#### Privilege Level
+
+> Enabling and Disabling privilege auditing
+>
+> > Defaults: SYSTEM privilege - By Access
+
+```sql
+AUDIT privilege_name [BY username] [by SESSION | ACCESS] [WHENEVER SUCCESSFUL | NOT SUCCESSFUL]
+
+NOAUDIT CREATE SESSION ;
+NOAUDIT CREATE SESSION BY HR BY ACCESS;
+NOAUDIT UPDATE ANY TABLE  BY HR WHENEVER  NOT SUCCESSFUL;
+AUDIT DELETE ANY TABLE BY HR BY ACCESS;
+```
+
 > Show enabled privilege audit options
 
 ```sql
 select * from dba_priv_audit_opts;
 ```
 
+#### Object Level
+
+> Enabling and Disabling object auditing
+>
+> > Defaults: SYSTEM privilege - By Access
+
+```sql
+AUDIT object_priv_name ON object_name [BY ACCESS | SESSION][WHENEVER SUCCESSFUL|NOT SUCCESSFUL]
+
+AUDIT DELETE ON hr.employees;
+AUDIT DELETE ON hr.employees by access;
+```
+
+> Show enabled privilege audit options
+
+```sql
+select * from dba_obj_audit_opts;
+```
+
 ---
 
-## Chapter 6 - Backup and Recovery Using RMAN
+## Chapter 6 - Backup and Recovery
