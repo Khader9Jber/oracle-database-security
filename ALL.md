@@ -63,6 +63,20 @@ startup;
 select * from sys.aud$;
 ```
 
+> Enabling statement auditing
+>
+> > Always BY ACCESS
+
+```sql
+[NO]AUDIT operation [BY user] [ON object] [WHENEVER [NOT] SUCCESSFUL];
+
+AUDIT table;
+AUDIT table BY hr;
+AUDIT table BY hr WHENEVER NOT SUCCESSFUL;
+AUDIT table BY hr WHENEVER SUCCESSFUL;
+AUDIT INSERT TABLE BY hr BY ACCESS;
+```
+
 ---
 
 ## Chapter 6 - Backup and Recovery Using RMAN
