@@ -18,6 +18,12 @@
 
 ## Chapter 5
 
+> The main show command
+
+```sql
+sho parameter audit;
+```
+
 ### Mandatory Auditing
 
 > Show all recorded records
@@ -32,6 +38,14 @@ select * from unified_audit_trail;
 
 ```sql
 sho parameter audit_file_dest;
+```
+
+> Enabling and Showing if the additional actions for SYSDBA and SYSOPER is audited
+
+```sql
+sho parameter audit_sys_operations;
+-- Enables additional auditing of the SYSDBA or SYSOPER actions.
+ alter system set audit_sys_operations = true scope=spfile;
 ```
 
 ### Standard Auditing
@@ -141,6 +155,13 @@ select * from dba_obj_audit_opts;
 
 ```sql
 select * from dba_audit_trail WHERE obj_name='EMPLOYEES' AND action_name='DELETE';
+```
+
+> Purging the auditing trail
+
+```sql
+-- Deleting auditing in the last 90 days
+DELETE FROM sys.aud$ WHERE timestamp# < SYSDATE -90;
 ```
 
 ---
