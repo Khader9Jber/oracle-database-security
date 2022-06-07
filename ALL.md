@@ -239,14 +239,23 @@ statement_types=>'SELECT');
 SELECT * FROM employees;
 ```
 
-> Enabling disabled policy
+> Enabling & Disabling disabled policy
 
 ```sql
+-- Enabling
 DBMS_FGA.ENABLE_POLICY(object_schema=>'HR',
 object_name=>'EMPLOYEES',
 policy_name=>'COMPENSATION_AUD');
 
 -- Check if it works (Must be working because it is now enabled)
+SELECT * FROM employees;
+
+-- Disabling
+DBMS_FGA.DISABLE_POLICY(object_schema=>'HR',
+object_name=>'EMPLOYEES',
+policy_name=>'COMPENSATION_AUD');
+
+-- Check if it works (Must be not working because it is now disabled)
 SELECT * FROM employees;
 ```
 
