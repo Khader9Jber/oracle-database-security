@@ -326,6 +326,135 @@ alter system set audit_trail = none  scope= spfile;
 -- EXECUTE of DBMS_AUDIT_MGMT
 ```
 
+> Showing audited records
+>
+> > AUD$ and FGA$ tables replaced with one single audit trail table (UNIFIED_AUDIT_TRAIL).
+
+```sql
+select * from unified_audit_trail;
+```
+
+> Creating audit policy
+>
+> > U must have AUDIT SYSTEM (system privilege) or AUDIT ADMIN (role)
+
+```sql
+CREATE AUDIT POLICY policy_name audit_clauses
+[WHEN 'audit_condition'
+EVALUATE PER [STATEMENT | SESSION | INSTANCE]]
+
+-- The audit_clauses have different options and syntax based on whether privilege, statement, or role is audited.
+-- The audit_condition specifies a condition that determines if the unified audit policy is enforced
+
+
+CREATE AUDIT POLICY unified_syspriv_1
+PRIVILEGES SELECT ANY TABLE, ALTER SESSION;
+
+-- Policy to audit all system and object privileges granted directly to the role resource
+CREATE AUDIT POLICY unified_role_audit_1
+ROLES resource;
+
+
+-- Create Multi purpose Policy
+CREATE AUDIT POLICY unified_multi_1
+PRIVILEGES SELECT ANY TABLE, ALTER SESSION
+ACTIONS execute, alter database link
+ROLES dba, resource;
+
+CREATE AUDIT POLICY unified_obj1_hr
+ACTIONS delete, insert ON hr.departments;
+
+-- Audit datapump export actions
+-- RMAN backup, restore, and recover operations are audited by default by the unified audit
+CREATE AUDIT POLICY datapump_exp_aud
+ACTIONS COMPONENT=datapump export;
+```
+
+> Enabling and Disabling Audit Policies
+
+```sql
+AUDIT POLICY policy
+[ { BY user [, user]... } | { EXCEPT user [, user]... } ]
+[ WHENEVER [ NOT ] SUCCESSFUL ]
+
+
+-- Enabling
+AUDIT POLICY  unified_obj1_hr
+
+AUDIT POLICY unified_syspriv_1
+BY nael, ahmad WHENEVER NOT SUCCESSFUL;
+
+-- Disabling
+NOAUDIT POLICY unified_obj1_hr
+```
+
+> Policies Query
+
+```
+-- All Predefined Policies
+select *
+from AUDIT_UNIFIED_POLICIES;
+
+-- Enabled policies
+select * from audit_unified_enabled_audit;
+```
+
+> Purging Unified Audit Records
+>
+> > - Unlike SYS.AUD$, UNIFIED_AUDIT_TRAIL cannot be deleted using DML statements.
+> > - delete from unified_audit_trail; (Cause ERROR)
+> > - Done using using the DBMS_AUDIT_MGMT.CLEAN_AUDIT_TRAIL procedure
+
+```
+begin
+dbms_audit_mgmt.clean_audit_trail(
+audit_trail_type => dbms_audit_mgmt.AUDIT_TRAIL_UNIFIED,
+use_last_arch_timestamp => false);
+end;
+```
+
+> Full Example
+
+```sql
+-- Create
+CREATE AUDIT POLICY unified_obj1_hr
+ACTIONS delete, insert ON hr.departments;
+
+-- Enable
+audit policy unified_obj1_hr;
+
+-- Test
+Insert into HR.DEPARTMENTS (DEPARTMENT_ID,DEPARTMENT_NAME,MANAGER_ID,LOCATION_ID) values (2000,'Test',null,1700);
+
+
+-- Check
+select *
+from unified_audit_trail
+WHERE  UNIFIED_AUDIT_POLICIES like '%HR%'
+
+
+-- Clear
+
+begin
+dbms_audit_mgmt.clean_audit_trail(
+audit_trail_type => dbms_audit_mgmt.AUDIT_TRAIL_UNIFIED,
+use_last_arch_timestamp => false);
+end;
+
+-- Disable
+noaudit policy unified_obj1_hr;
+
+-- Test and Check again!
+```
+
+> Query RMAN operations
+
+```
+select *
+from UNIFIED_AUDIT_TRAIL
+where RMAN_OPERATION is not null;
+```
+
 ---
 
 ## Chapter 6 - Backup and Recovery
