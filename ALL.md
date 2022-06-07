@@ -42,7 +42,9 @@ sho parameter audit_file_dest;
 select * from v$xml_audit_trail;
 ```
 
-> Disabling AND Enabling Standard Auditing:
+> Disabling AND Enabling Standard Auditing
+>
+> > The records are sorted in SYS.AUD$
 
 ```sql
 Show parameter audit_trail;
@@ -56,6 +58,9 @@ alter system set audit_trail = [db|xml][, extended]  scope= spfile;
 -- Restart Database
 shutdown immediate;
 startup;
+
+-- Sho recoded records
+select * from sys.aud$;
 ```
 
 ---
