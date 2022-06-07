@@ -195,6 +195,36 @@ END;
 /
 ```
 
+### Fine-Grained Auditing (FGA)
+
+> Auditing According to specific conditions (e.g if someone made a query on the manager salary)
+>
+> > - Working on SELECT + DML (INSERT, UPDATE, DELETE)
+> > - On operations happening on table or column inside table
+> > - Fist we need to create a policy, then we need to enable it.
+> > - U can control policies via package located in SYS schema
+
+```sql
+-- To create a new FGA policy, use the packaged procedure DBMS_FGA.ADD_POLICY
+-- This procedure has the following parameters:
+
+-- INPUT PARAMETERS
+--   object_schema   - schema owning the table/view, current user if NULL
+--   object_name     - name of table or view
+--   policy_name     - name of policy to be added
+--   audit_column    - column to be audited
+--   audit_condition - predicates for this policy
+--   handler_schema  - schema where the event handler procedure is
+--   handler_module  - name of the event handler
+--   enable          - policy is enabled by DEFAULT
+--   statement_type  - statement type a policy applies to (default SELECT)
+--   audit_trail     - Write sqltext and sqlbind into audit trail as well
+--                     as destination of audit trail (default DB_EXTENDED)
+--   audit_column_options - option of using 'Any' or 'All' on audit columns
+--                          for the policy (default ANY)
+--   policy_owner    - Owner of FGA policy to be added (default NULL)
+```
+
 ---
 
 ## Chapter 6 - Backup and Recovery
