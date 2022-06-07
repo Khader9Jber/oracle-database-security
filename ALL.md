@@ -267,6 +267,18 @@ object_name=>'EMPLOYEES',
 policy_name=>'COMPENSATION_AUD');
 ```
 
+> Viewing FGA policies and related info
+
+```sql
+-- View all policies
+SELECT * FROM dba_audit_policies;
+
+-- Reporting on FGA audit-trail entries
+SELECT *
+FROM dba_fga_audit_trail
+WHERE policy_name='COMPENSATION_AUD’
+```
+
 ---
 
 ## Chapter 6 - Backup and Recovery
