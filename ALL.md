@@ -123,14 +123,24 @@ select * from dba_priv_audit_opts;
 ```sql
 AUDIT object_priv_name ON object_name [BY ACCESS | SESSION][WHENEVER SUCCESSFUL|NOT SUCCESSFUL]
 
+AUDIT all ON employees;
 AUDIT DELETE ON hr.employees;
 AUDIT DELETE ON hr.employees by access;
 ```
 
 > Show enabled privilege audit options
+>
+> > - "-" audit option is not set. "S" BY SESSION. "A" BY ACCESS.
+> > - Audit option either WHENEVER SUCCESSFUL and WHENEVER NOT SUCCESSFUL
 
 ```sql
 select * from dba_obj_audit_opts;
+```
+
+> Showing auditing records recorded according to specific statement or object or both
+
+```sql
+select * from dba_audit_trail WHERE obj_name='EMPLOYEES' AND action_name='DELETE';
 ```
 
 ---
