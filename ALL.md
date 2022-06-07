@@ -259,6 +259,14 @@ policy_name=>'COMPENSATION_AUD');
 SELECT * FROM employees;
 ```
 
+> Dropping FGA policy
+
+```sql
+DBMS_FGA.DROP_POLICY(object_schema=>'HR',
+object_name=>'EMPLOYEES',
+policy_name=>'COMPENSATION_AUD');
+```
+
 ---
 
 ## Chapter 6 - Backup and Recovery
