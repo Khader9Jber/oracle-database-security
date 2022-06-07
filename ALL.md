@@ -308,6 +308,22 @@ net start OracleService~~sec~~
 
 -- 7- Startup Lister
 lsnrctl start
+
+-- 8- Check if the Unified Auditing is enabled
+select * from v$option where parameter='Unified Auditing';
+
+-- 9- Disable other auditing mechanisms
+alter system set audit_trail = none  scope= spfile;
+
+
+--- NOTE: Now there are some actions will be audited mandatory without any policy
+-- CREATE AUDIT POLICY
+-- ALTER AUDIT POLICY
+-- DROP AUDIT POLICY
+-- AUDIT
+-- NOAUDIT
+-- EXECUTE of DBMS_FGA
+-- EXECUTE of DBMS_AUDIT_MGMT
 ```
 
 ---
