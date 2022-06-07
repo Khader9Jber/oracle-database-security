@@ -225,6 +225,31 @@ END;
 --   policy_owner    - Owner of FGA policy to be added (default NULL)
 ```
 
+> Creating a new disabled policy
+
+```sql
+DBMS_FGA.ADD_POLICY(object_schema=>'HR',
+object_name=>'EMPLOYEES',
+policy_name=>'COMPENSATION_AUD',
+audit_column=>'SALARY, COMMISSION_PCT',
+enable=>FALSE,
+statement_types=>'SELECT');
+
+-- Check if it works (Must be not because it is disabled)
+SELECT * FROM employees;
+```
+
+> Enabling disabled policy
+
+```sql
+DBMS_FGA.ENABLE_POLICY(object_schema=>'HR',
+object_name=>'EMPLOYEES',
+policy_name=>'COMPENSATION_AUD');
+
+-- Check if it works (Must be working because it is now enabled)
+SELECT * FROM employees;
+```
+
 ---
 
 ## Chapter 6 - Backup and Recovery
