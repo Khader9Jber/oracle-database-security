@@ -63,7 +63,7 @@ startup;
 select * from sys.aud$;
 ```
 
-> Enabling statement auditing
+> Enabling and Disabling statement auditing
 >
 > > Always BY ACCESS
 
@@ -71,10 +71,30 @@ select * from sys.aud$;
 [NO]AUDIT operation [BY user] [ON object] [WHENEVER [NOT] SUCCESSFUL];
 
 AUDIT table;
-AUDIT table BY hr;
+NOAUDIT table BY hr;
 AUDIT table BY hr WHENEVER NOT SUCCESSFUL;
 AUDIT table BY hr WHENEVER SUCCESSFUL;
 AUDIT INSERT TABLE BY hr BY ACCESS;
+```
+
+> Show records happening because specific user
+
+```sql
+SELECT username, timestamp, action_name
+FROM dba_audit_trail
+WHERE username = 'HR';
+```
+
+> Show enabled statement audit options
+
+```sql
+select * from dba_stmt_audit_opts;
+```
+
+> Show enabled privilege audit options
+
+```sql
+select * from dba_priv_audit_opts;
 ```
 
 ---
