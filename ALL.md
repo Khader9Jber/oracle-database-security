@@ -279,6 +279,37 @@ FROM dba_fga_audit_trail
 WHERE policy_name='COMPENSATION_AUD’
 ```
 
+### Unified Auditing
+
+> Enabling & Disabling Unified Auditing
+
+```sql
+-- 1- Stopping Lister
+lsnrctl stop
+
+-- 2- Stopping DB
+shutdown immediate
+
+-- 3- Stopping DB Service (Append UR CDB name)
+net stop OracleService~~sec~~
+
+-- 4- Relink Oracle Home Binary:
+-- Unix Systems
+cd $ORACLE_HOME/rdbms/lib
+make -f ins_rdbms.mk uniaud_on ioracle ORACLE_HOME=$ORACLE_HOME
+-- Windows Systems
+C:\app\db_home\bin\orauniaud.dll.dbl -- Delete .dbl
+
+-- 5- Startup the DB
+startup
+
+-- 6- Startup DB Service (Append UR CDB name)
+net start OracleService~~sec~~
+
+-- 7- Startup Lister
+lsnrctl start
+```
+
 ---
 
 ## Chapter 6 - Backup and Recovery
