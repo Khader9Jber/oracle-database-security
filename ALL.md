@@ -91,7 +91,7 @@ select * from sys.aud$;
 > > Always BY ACCESS
 
 ```sql
-[NO]AUDIT operation [BY user] [BY ACCESS|SESSION] [WHENEVER [NOT] SUCCESSFUL];
+[NO]AUDIT option [BY user] [BY ACCESS|SESSION] [WHENEVER [NOT] SUCCESSFUL];
 
 AUDIT table;
 NOAUDIT table BY hr;
