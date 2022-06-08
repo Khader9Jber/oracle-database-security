@@ -100,9 +100,9 @@ AUDIT table BY hr WHENEVER SUCCESSFUL;
 AUDIT INSERT TABLE BY hr BY ACCESS;
 ```
 
-![I1](.\i1.jpg)
-![I2](i2.jpg)
-![I3](i3.jpg)
+![I1](.Images/i1.jpg)
+![I2](.Images/i2.jpg)
+![I3](.Images/i3.jpg)
 
 > Show records happening because specific user
 
