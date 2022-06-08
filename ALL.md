@@ -12,6 +12,10 @@
 
 ---
 
+---
+
+---
+
 # Oracle Database Security - Midterm Exam Revision
 
 ## [Doc Link For Important Expected Questions](@https://docs.google.com/document/d/1btVfkwTOQZp7Bl35Zqrf9CXXJqfVdOJ7fJw8E10vhf8/edit?usp=sharing)
@@ -523,6 +527,10 @@ v_hire_date,
 v_salary;
 end;
 ```
+
+---
+
+---
 
 ## Chapter 4
 
