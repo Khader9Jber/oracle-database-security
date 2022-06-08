@@ -91,7 +91,7 @@ select * from sys.aud$;
 > > Always BY ACCESS
 
 ```sql
-[NO]AUDIT operation [BY user] [ON object] [WHENEVER [NOT] SUCCESSFUL];
+[NO]AUDIT operation [BY user] [WHENEVER [NOT] SUCCESSFUL];
 
 AUDIT table;
 NOAUDIT table BY hr;
@@ -99,6 +99,10 @@ AUDIT table BY hr WHENEVER NOT SUCCESSFUL;
 AUDIT table BY hr WHENEVER SUCCESSFUL;
 AUDIT INSERT TABLE BY hr BY ACCESS;
 ```
+
+![alt](./i1.jpg)
+![alt](./i2.jpg)
+![alt](./i3.jpg)
 
 > Show records happening because specific user
 
