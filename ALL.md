@@ -12,6 +12,518 @@
 
 ---
 
+# Oracle Database Security - Midterm Exam Revision
+
+## [Doc Link For Important Expected Questions](@https://docs.google.com/document/d/1btVfkwTOQZp7Bl35Zqrf9CXXJqfVdOJ7fJw8E10vhf8/edit?usp=sharing)
+
+### Managing Application Containers & PDBs
+
+> To Connect to the **root CDB** using cmd directly
+
+```sql
+sqlplus / as sysdba
+```
+
+> Show ALL options available
+
+```sql
+show all;
+```
+
+> Show ALL PDBs
+
+```sql
+SHOW pdbs; -- U must be in DBA user (Like sys)
+```
+
+> Show the container name the U currently in
+
+```sql
+show con_name;
+```
+
+> Show the container ID the U currently in
+
+```sql
+show con_id;
+```
+
+> Show the current user
+
+```sql
+show user;
+```
+
+> Show all parameters
+
+```sql
+show PARAMETER -- U must be in DBA user (Like sys)
+```
+
+> Show specific parameter
+
+```sql
+show PARAMETER COMMON_USER_PREFIX
+```
+
+> Show All DBA users
+
+```sql
+SELECT USERNAME FROM DBA_USERS; -- U must be in DBA user (Like sys)
+```
+
+> Show All users
+
+```sql
+SELECT USERNAME FROM ALL_USERS;
+```
+
+---
+
+> Creating and open an Application Container
+
+```sql
+CREATE PLUGGABLE DATABASE appcon1 AS APPLICATION CONTAINER ADMIN USER app_admin IDENTIFIED BY Password1;
+-- FILE_NAME_CONVERT=('C:\app\Administrator\oradata\SEC\pdbseed', 'C:\app\Administrator\oradata\SEC\appcon1\’);
+ALTER PLUGGABLE DATABASE appcon1 OPEN;
+```
+
+> Closing then dropping the Application Container (Same when U need to drop PDB)
+
+```sql
+ALTER PLUGGABLE DATABASE appcon1 CLOSE;
+DROP PLUGGABLE DATABASE appcon1 INCLUDING DATAFILES; -- PDB or APP must be closed
+```
+
+> Switch to the Application container, to be able to create a new Application Pluggable inside it.
+
+```sql
+ALTER SESSION SET container = appcon1;
+```
+
+> Creating a new pluggable PDB and open it.
+
+```sql
+CREATE PLUGGABLE DATABASE apppdb1 ADMIN USER pdb_admin IDENTIFIED BY Password1;
+ALTER PLUGGABLE DATABASE apppdb1 OPEN;
+```
+
+> Once we create a App PDB, we need to sync it with all Apps int the same App root
+
+```sql
+ALTER SESSION SET container = apppdb1; -- switch to the created PDB
+ALTER PLUGGABLE DATABASE APPLICATION ALL SYNC; -- PDB must be opened
+```
+
+---
+
+### Tablespaces Management
+
+> Creating a tablespace
+
+```sql
+CREATE TABLESPACE NAEL_TBS
+DATAFILE ‘C:\app\Administrator\oradata\SEC\secpdb\nael_data01.dbf’
+SIZE 20M;
+```
+
+> Dropping a tablespace
+
+```sql
+drop tablespace ts1 including contents
+```
+
+> Creating a temporary tablespace
+>
+> > This type of temporary tablespace contains info that stored until the session is being closed. and the data from some operations such as sorting and joining operations **(ORDER BY, GROUP BY, SELECT DISTINCT, MERGE JOIN, or CREATE INDEX)** will store here in this temp tablespace
+
+```sql
+CREATE TEMPORARY TABLESPACE temp1
+TEMPFILE ‘C:\app\Administrator\oradata\SEC\temp1.dbf’
+Size 50m;
+```
+
+> Show default tablespaces for **database**
+
+```sql
+SELECT PROPERTY_VALUE FROM DATABASE_PROPERTIES WHERE PROPERTY_NAME = 'DEFAULT_PERMANENT_TABLESPACE';
+FILE 'C:\app\Administrator\oradata\SEC\secpdb\nael_data01.dbf'
+SIZE 20M;
+```
+
+> Show default tablespaces for **user**
+
+```sql
+select USERNAME, DEFAULT_TABLESPACE, TEMPORARY_TABLESPACE  from DBA_USERS where USERNAME='NAEL';
+```
+
+---
+
+### Managing User Authentication
+
+![Creating User](./create-user.png)
+
+> Giving nael user a privileges to create a new user
+
+```sql
+GRANT CREATE USER TO NAEL WITH ADMIN OPTION;
+```
+
+> Creating user syntax
+>
+> > default tablespace enable you to separate user data and system data
+
+```sql
+CREATE USER username
+IDENTIFIED BY password
+[DEFAULT TABLESPACE tablespace_name]
+[TEMPORARY TABLESPACE temp_ts_name]
+[QUOTA UNLIMITED|size ON tablespace_name]
+[PROFILE user_profile]
+[PASSWORD EXPIRE]
+[ACCOUNT LOCK|UNLOCK];
+```
+
+![Create User Syntax Meaning](./create_user_1.jpg)
+
+> Creating user example
+>
+> > This example creates a local user account and specifies the user password, default tablespace, temporary tablespace where temporary segments are created, tablespace quotas, and profile.
+
+```sql
+CREATE USER NAEL
+IDENTIFIED BY out_ nael
+DEFAULT TABLESPACE NAEL_TBS
+QUOTA 10M ON nael_tbs
+TEMPORARY TABLESPACE temp1
+QUOTA 5M ON users
+PROFILE app_user
+PASSWORD EXPIRE; -- this will force the user to change this password (we can do this via user profile also)
+```
+
+> Granting create session for this new user
+>
+> > to be able to connect to the DB
+
+```sql
+GRANT CREATE SESSION TO NAEL;
+```
+
+> Creating a schema only account inside PDB and granting privileges on it.
+
+```sql
+alter session set container = secpdb;
+
+create user sales_schema no authentication quota unlimited on users;
+
+grant create session, create table, create sequence, create view to sales_schema ;
+```
+
+> Another way for Creating a schema only account (without using no authentication clause)
+
+```sql
+drop user sales_schema  cascade; -- drop schema if it exists
+
+create user sales_schema quota unlimited on users;
+
+grant create session, create table, create sequence, create view to sales_schema ;
+```
+
+> Assigning tablespace for user that already created
+
+```sql
+ALTER USER nael
+DEFAULT TABLESPACE NAEL_TBS;
+```
+
+> Assigning temporary tablespace for specific user that already created
+
+```sql
+ALTER USER temp_user TEMPORARY TABLESPACE temp;
+ALTER DATABASE DEFAULT TEMPORARY TABLESPACE temp1; -- Assigning temporary tablespace for any user in the current DB
+```
+
+> Assigning Quota for user that already created
+
+```sql
+ALTER USER university
+QUOTA UNLIMTED ON USERS;
+```
+
+> Create and grant privilege to user in one statement
+
+```sql
+GRANT CREATE SESSION, CREATE TABLE to USER01 IDENTIFIED BY user;
+CONNECT user01/user
+CREATE TABLE T1 (C1 NUMBER);
+```
+
+---
+
+### Managing User Profiles
+
+> Creating profile syntax
+>
+> > Profile is a set of limits on the database resources and the user password.
+> >
+> > > The profile can be applied to multiple users, enabling them to share these attributes. and Different profiles can be assigned to a common user (Common Profile) in the root CDB or Application container, and in a PDB (Local Profile).
+
+```sql
+CREATE PROFILE profile_name
+LIMIT { resource_parameters | password_parameters};
+```
+
+![Profile Password default settings](./pass-prof.png)
+![Profile Password default settings](./pass-prof2.png)
+![Pass Life cycle](./pass-life.png)
+
+- `INACTIVE_ACCOUNT_TIME` cannot be changed for accounts that authenticate not by password (External & Global User Authn), and its minimum value = 15 days
+- If you specify `PASSWORD_LOCK_TIME` as UNLIMITED, then you must explicitly unlock the account by using `ALTER USER NAEL ACCOUNT UNLOCK;`
+- A locked CDB common user account will be locked across all PDBs in the CDB. A locked application common user account will be locked across all PDBs that are associated with the application root.
+
+> Example for creating a local profile
+>
+> > If you are creating a common profile, then you must provide the profile name with the c## prefix (for example, c##password_prof)
+
+```sql
+CREATE PROFILE password_prof LIMIT
+SESSIONS_PER_USER UNLIMITED
+FAILED_LOGIN_ATTEMPTS 6
+PASSWORD_LIFE_TIME 60
+PASSWORD_REUSE_TIME 60
+PASSWORD_REUSE_MAX 5
+PASSWORD_LOCK_TIME 1/24
+PASSWORD_GRACE_TIME 10
+PASSWORD_VERIFY_FUNCTION DEFAULT;
+```
+
+> Altering a profile that set time for locking account after exceeding the maximum attempts = 10 Days
+
+```sql
+alter profile users_profile limit PASSWORD_LOCK_TIME 10;
+```
+
+> Assigning a profile for a user.
+
+```sql
+ALTER USER NAEL PROFILE users_profile;
+```
+
+> Show all profiles
+
+```sql
+select * from DBA_PROFILES;
+```
+
+> Show all users & their profiles
+
+```sql
+SELECT username, profile FROM dba_users WHERE username = ‘USER02';
+```
+
+> Enable pass complexity
+>
+> > C:\app\db_home\rdbms\admin\catpvf.sql => can be customized to enable password complexity verification. (But U need to run it to create the functions that found inside it)
+
+```sql
+GRANT NAEL EXECUTE ON ora12c_strong_verify_function;
+
+ALTER PROFILE password_prof LIMIT
+PASSWORD_VERIFY_FUNCTION ora12c_strong_verify_function;
+
+ALTER PROFILE DEFAULT LIMIT PASSWORD_VERIFY_FUNCTION NULL; -- If you need to disable it
+```
+
+> To be able to apply a resources restrictions in profile for user(s), U have to enable RESOURCE_LIMIT parameter
+
+```sql
+show PARAMETER resource_limit;
+
+ALTER SYSTEM SET resource_limit = TRUE SCOPE = BOTH;
+```
+
+> Creating resource limit profile
+
+```sql
+CREATE PROFILE app_user LIMIT
+SESSIONS_PER_USER          UNLIMITED
+CPU_PER_SESSION            UNLIMITED
+CPU_PER_CALL               3500
+CONNECT_TIME               50
+LOGICAL_READS_PER_SESSION  DEFAULT
+LOGICAL_READS_PER_CALL     1200
+PRIVATE_SGA                20K
+COMPOSITE_LIMIT            7500000;
+```
+
+- SESSIONS_PER_USER Specify the number of concurrent sessions to which you want to limit the user.
+- CPU_PER_SESSION Specify the CPU time limit for a session, expressed in hundredth of seconds.
+- CPU_PER_CALL Specify the CPU time limit for a call (a parse, execute, or fetch), expressed in hundredths of seconds.
+- CONNECT_TIME Specify the total elapsed time limit for a session, expressed in minutes.
+- IDLE_TIME Specify the permitted periods of continuous inactive time during a session, expressed in minutes.
+- LOGICAL_READS_PER_SESSION Specify the permitted number of data blocks read in a session, including blocks read from memory and disk.
+- LOGICAL_READS_PER_CALL Specify the permitted the number of data blocks read for a call to process a SQL statement (a parse, execute, or fetch).
+- PRIVATE_SGA Specify the amount of private space a session can allocate in the shared pool of the system global area (SGA), expressed in bytes.
+- COMPOSITE_LIMIT Specify the total resource cost for a session, expressed in service units. Oracle Database calculates the total service units as a weighted sum of CPU_PER_SESSION, CONNECT_TIME, LOGICAL_READS_PER_SESSION, and PRIVATE_SGA.
+
+> Dropping profile
+>
+> > All users that associated to this profile will assigned automatically to the default profile (can not be dropped)
+
+```sql
+DROP PROFILE app_user CASCADE;
+```
+
+> `CPU_PER_SESSION` limitation
+>
+> > This measured in hundredths of a second, and when the resources exceed the limit, the actions that U try to do will rollback and the Exception will be thrown.
+
+```sql
+CREATE PROFILE agent LIMIT CPU_PER_CALL 30000;
+ALTER PROFILE data_analyst LIMIT CPU_PER_CALL UNLIMITED;
+```
+
+> `CONNECT_TIME` limitation
+>
+> > This measured in minutes of a second, and when the session time exceed the limit, the actions that U try to do will rollback and the session will be terminated.
+
+```sql
+CREATE PROFILE agent LIMIT CONNECT_TIME 10;
+ALTER PROFILE data_analyst LIMIT CONNECT_TIME UNLIMITED;
+```
+
+> Altering user
+
+```sql
+alter user khaled
+identified by "P@ssw0rd"
+default tablespace example
+quota 20M on example
+profile app_user;
+```
+
+> Changing password
+
+```sql
+conn khader -- or U can connect to system DBA user, then change the password
+password khader; -- Password is hashed, while ALTER USER passes, this will be a clear text.
+```
+
+> Unlock user
+
+```sql
+alter user khaled account unlock password expire;
+```
+
+> Drop user
+
+```sql
+select sid, serial#, username from v$session where username=’KHALED’; -- if the user is currently open, U must kill his session
+drop user Khaled cascade; -- all of the user’s schema objects are dropped and the schema is deleted from the data dictionary.
+```
+
+> Check if the user schema contains object
+
+```sql
+SELECT OWNER, OBJECT_NAME FROM DBA_OBJECTS WHERE OWNER LIKE 'NAEL';
+```
+
+> Show all tablespaces that assigned to the user
+
+```sql
+SELECT * FROM DBA_TS_QUOTAS;
+```
+
+![Dictionary](./dict.png)
+
+> External OS Authn
+
+```sql
+CREATE USER ops$nael IDENTIFIED EXTERNALLY;
+
+show parameter os_authent_prefix -- If U  need to show the prefix that used to create external OS authentication account
+grant connect to ops$nael;
+-- Connecting to this account
+connect /
+show user -- USER is "OPS$NAEL"
+```
+
+---
+
+### SQL injection
+
+> Create a vulnerable stored procedure that insert employee to employees table using execute immediate clause
+
+```sql
+CREATE OR REPLACE PROCEDURE insert_emp (
+v_employee_id VARCHAR2, v_employee_name VARCHAR2, v_employee_email VARCHAR2,
+v_hire_date VARCHAR2, v_salary VARCHAR2)
+
+IS
+
+v_sql VARCHAR2(1000);
+begin
+v_sql := 'INSERT INTO employees (employee_id, employee_name, employee_email, hire_date, salary) VALUES (' ||
+'''' || v_employee_id || ''',' ||
+'''' || v_employee_name || ''',' ||
+'''' ||  v_employee_email || ''',' ||
+'''' || v_hire_date || ''',' ||
+'''' ||  v_salary || '' || ')';
+
+execute immediate v_sql;
+
+end;
+```
+
+> Granting a privilege to HR user to be able to execute the functions
+
+```sql
+grant exec_function to hr;
+```
+
+> Inserting via this function
+
+```sql
+insert into insert_emp ('212', 'khader', 'khader@gmail.com', '21-9-2000', '3000'); -- normal insert
+
+insert into insert_emp ('212', 'khader''', -- this will give an error because sql injection, to know if there is a SQLi injection or not and to know the database type.
+'khader@gmail.com', '21-9-2000', '3000');
+
+insert into insert_emp ('212', ''' (select user from dual)', -- to know the user
+'khader@gmail.com', '21-9-2000', '3000');
+
+insert into insert_emp ('212', '(select table_name, rownum as R from USER_TABLES) WHERE R = 2)', -- Making inline view get table name
+'khader@gmail.com', '21-9-2000', '3000');
+
+
+insert into insert_emp ('212', 'khader', 'khader@gmail.com', '21-9-2000', '(select max(salary) from employees)' -- alter the salary to the highest salary
+);
+```
+
+> Securing the code from SQLi
+
+```sql
+CREATE OR REPLACE PROCEDURE insert_emp (
+v_employee_id employess.employee_id%type, v_employee_name employess.employee_id%type,
+v_employee_email employess.employee_id%type, v_hire_date employess.employee_id%type,
+v_salary employess.employee_id%type)
+
+IS
+
+v_sql VARCHAR2(1000);
+begin
+v_sql := 'INSERT INTO employees (employee_id, employee_name, employee_email, hire_date, salary)
+VALUES (:v_employee_id, :v_employee_name, :v_employee_email,
+:v_hire_date, :v_salary)';
+
+execute immediate v_sql using v_employee_id,
+v_employee_name,
+v_employee_email,
+v_hire_date,
+v_salary;
+end;
+```
+
 ## Chapter 4
 
 ---
