@@ -100,7 +100,7 @@ AUDIT table BY hr WHENEVER SUCCESSFUL;
 AUDIT INSERT TABLE BY hr BY ACCESS;
 ```
 
-![I1](i1.jpg)
+![I1](.\i1.jpg)
 ![I2](i2.jpg)
 ![I3](i3.jpg)
 
